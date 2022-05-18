@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Head from "next/head";
 import Editor from "@monaco-editor/react";
-import { Column, Inline, styled, Text } from "junoblocks";
+import { Column, Inline, styled, Text, globalCss } from "junoblocks";
 import defaultRewardsList from "../public/rewards_list.local.json";
 import defaultTokenList from "../public/token_list.local.json";
 import { CopyTextButton } from "../components/CopyTextButton";
@@ -12,9 +12,16 @@ const defaultRewardsListPrettified = JSON.stringify(
   2
 );
 
+const applyCss = globalCss({
+  ".editor": {
+    flex: 1,
+  },
+});
+
 const defaultTokenListPrettified = JSON.stringify(defaultTokenList, null, 2);
 
-const editorHeight = "clamp(250px, 30vh, 450px)";
+const editorHeight = "auto";
+const bigEditorHeight = "auto";
 
 export default function Home() {
   const [tokenListConfig, setTokenListConfig] = useState(
@@ -25,7 +32,6 @@ export default function Home() {
     defaultRewardsListPrettified
   );
 
-  const [parsedTokenListConfig, setParsedTokenListConfig] = useState("");
   const [parsedPoolListConfig, setParsedPoolListConfig] = useState("");
 
   useEffect(() => {
@@ -45,19 +51,6 @@ export default function Home() {
     const cleanedUpBaseToken = cleanUpTokenInfo(baseToken);
 
     /* parse token list */
-    const parsedTokensFromTokenList = tokenList.tokens.map(cleanUpTokenInfo);
-    setParsedTokenListConfig(
-      JSON.stringify(
-        {
-          ...tokenList,
-          baseToken: cleanedUpBaseToken,
-          tokens: parsedTokensFromTokenList,
-        },
-        null,
-        2
-      )
-    );
-
     const pools = tokenList.tokens
       .filter((token) => token.symbol !== baseToken.symbol)
       .map((token) => {
@@ -78,6 +71,7 @@ export default function Home() {
       JSON.stringify(
         {
           name: "Pool list",
+          base_token: cleanedUpBaseToken,
           logoURI: tokenList.logoURI,
           keywords: tokenList.keywords,
           tags: tokenList.tags,
@@ -90,6 +84,10 @@ export default function Home() {
       )
     );
   }, [tokenListConfig, rewardsListConfig]);
+
+  useLayoutEffect(() => {
+    applyCss();
+  }, []);
 
   return (
     <StyledDivForContainer css={{ padding: "$10 0" }}>
@@ -105,11 +103,25 @@ export default function Home() {
         Wasmswap config merger
       </Text>
       <Text variant="body" css={{ paddingBottom: "$16" }}>
-        This is to generate updated token_list and a new pool_config files based
-        on old token_list and rewards_config configurations.
+        This is to generate updated a new pool_config file based on old
+        token_list and rewards_config configurations.
       </Text>
-      <Inline gap={8}>
-        <Column css={{ flex: 1 }}>
+      <div
+        style={{
+          display: "grid",
+          columnGap: "32px",
+          height: "clamp(500px, 70vh, 900px)",
+        }}
+      >
+        <Column
+          style={{
+            flexDirection: "column",
+            gridColumnStart: 1,
+            gridColumnEnd: 2,
+            gridRowStart: 1,
+            gridRowEnd: 2,
+          }}
+        >
           <Text variant="title" css={{ padding: "$12 0 $8 0" }}>
             Paste your <StyledHighlight>`token_list.json`</StyledHighlight>{" "}
             here:
@@ -120,7 +132,19 @@ export default function Home() {
             defaultValue={defaultTokenListPrettified}
             onChange={(newValue) => setTokenListConfig(newValue)}
             theme="vs-dark"
+            className="editor"
+            onMount={handleApplyEditorClassName}
           />
+        </Column>
+        <Column
+          style={{
+            flexDirection: "column",
+            gridColumnStart: 1,
+            gridColumnEnd: 2,
+            gridRowStart: 2,
+            gridRowEnd: 4,
+          }}
+        >
           <Text variant="title" css={{ padding: "$12 0 $8 0" }}>
             Paste your <StyledHighlight>`rewards_config.json`</StyledHighlight>{" "}
             here:
@@ -131,29 +155,19 @@ export default function Home() {
             defaultValue={defaultRewardsListPrettified}
             onChange={(newValue) => setRewardsListConfig(newValue)}
             theme="vs-dark"
+            className="editor"
+            onMount={handleApplyEditorClassName}
           />
         </Column>
-        <Column css={{ flex: 1 }}>
-          <Inline
-            justifyContent="space-between"
-            align="center"
-            css={{ padding: "$12 0 $8 0" }}
-          >
-            <Text variant="title">
-              Updated <StyledHighlight>`token_list.json`</StyledHighlight>
-            </Text>
-            <CopyTextButton text={parsedTokenListConfig} />
-          </Inline>
-          <Editor
-            height={editorHeight}
-            defaultLanguage="json"
-            value={parsedTokenListConfig}
-            options={{
-              readOnly: true,
-            }}
-            readOnly
-            theme="vs-dark"
-          />
+        <Column
+          css={{
+            flexDirection: "column",
+            gridColumnStart: 2,
+            gridColumnEnd: 4,
+            gridRowStart: 1,
+            gridRowEnd: 4,
+          }}
+        >
           <Inline
             justifyContent="space-between"
             align="center"
@@ -166,18 +180,26 @@ export default function Home() {
           </Inline>
 
           <Editor
-            height={editorHeight}
+            height={bigEditorHeight}
             defaultLanguage="json"
             value={parsedPoolListConfig}
             options={{
               readOnly: true,
             }}
+            className="editor"
             theme="vs-dark"
+            onMount={handleApplyEditorClassName}
           />
         </Column>
-      </Inline>
+      </div>
     </StyledDivForContainer>
   );
+}
+
+function handleApplyEditorClassName() {
+  Array.from(document.querySelectorAll(".editor")).forEach((node) => {
+    node.parentNode.classList.add("editor");
+  });
 }
 
 const StyledDivForContainer = styled("div", {
