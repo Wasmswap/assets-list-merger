@@ -1,4 +1,6 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+This app lets you build out a new pools_list & token_list configs by using your old asset lists.
+<img width="2168" alt="image" src="https://user-images.githubusercontent.com/93623541/169099632-588c2682-2216-476b-b03e-0594decf56d2.png">
+
 
 ## Getting Started
 
