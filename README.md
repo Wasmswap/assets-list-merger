@@ -1,5 +1,5 @@
-This app lets you build out a new pools_list & token_list configs by using your old asset lists.
-<img width="2168" alt="image" src="https://user-images.githubusercontent.com/93623541/169099632-588c2682-2216-476b-b03e-0594decf56d2.png">
+The app lets you build out new `pools_list` config by using your `token_list` and `rewards_list` to make wasmswap compatible with the latest upgrade.
+<img width="1595" alt="image" src="https://user-images.githubusercontent.com/93623541/170124931-282e68af-b5b3-4293-8607-5344cc6240c3.png">
 
 
 ## Getting Started
