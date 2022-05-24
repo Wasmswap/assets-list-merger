@@ -103,7 +103,7 @@ export default function Home() {
         Wasmswap config merger
       </Text>
       <Text variant="body" css={{ paddingBottom: "$16" }}>
-        This is to generate updated a new pool_config file based on old
+        This is to generate pool_config file based on old
         token_list and rewards_config configurations.
       </Text>
       <div
